@@ -9,12 +9,12 @@ model:
   independent_condition: true
 
 train:
-  batch_size: 8
+  batch_size: 4
   accumulate_grad_batches: 1
   dataloader_workers: 5
-  save_interval: 250
-  sample_interval: 100
-  max_steps: -1
+  save_interval: 500
+  sample_interval: 200
+  max_steps: 6250
   gradient_checkpointing: true
   save_path: "runs"
 
@@ -34,6 +34,7 @@ train:
     # Set position_scale to enable compact tokens representation.
     # Don't forget to resale the condition_size if you change the position_scale.
     position_scale: 2.
+    noise_ratio: 0.08
 
   wandb:
     project: "OminiControl2"

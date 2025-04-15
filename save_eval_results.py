@@ -13,25 +13,29 @@ import torchvision.transforms as T
 import yaml
 from src.train.model import OminiModel
 import os
-with open("./train/config/omini2/canny_512_ct_fr.yaml", "r") as f:
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--path1", type=str, default="")
+parser.add_argument("--path2", type=str, default="")
+parser.add_argument("--val_length", type=int, default=200)
+
+args = parser.parse_args()
+print(f"evaluating by using ckpt:{args.path1 + args.path2}")
+
+path1 = args.path1
+path2 = args.path2
+val_length = args.val_length
+
+with open(os.path.join(path1, "config.yaml"), "r") as f:
     config = yaml.safe_load(f)
 condition_size = config['train']['dataset']['condition_size']
 target_size = config['train']['dataset']['target_size']
 position_scale = config['train']['dataset']['position_scale']
 condition_type = config['train']['condition_type']
 to_tensor = T.ToTensor()
-def _get_canny_edge(img):
-    resize_ratio = condition_size / max(img.size)
-    img = img.resize(
-        (int(img.size[0] * resize_ratio), int(img.size[1] * resize_ratio))
-    )
-    img_np = np.array(img)
-    img_gray = cv2.cvtColor(img_np, cv2.COLOR_RGB2GRAY)
-    edges = cv2.Canny(img_gray, 100, 200)
-    # cv2.imwrite("output1.jpg", edges)
-    return to_tensor(Image.fromarray(edges).convert("RGB")), edges
 # Load COCO Val dataset from huggingface
-dataset = load_dataset("jxie/coco_captions", split="validation")
+dataset = load_dataset("jxie/coco_captions", split="validation")[:200]
 image_list = dataset["image"]
 prompt_list = dataset["caption"]
 save_path = f"./eval_{condition_type}"
@@ -177,15 +181,11 @@ def generate_a_sample(
     if not os.path.exists(save_path):
         os.makedirs(save_path)
     return test_list
-# ipynb load model example
-# pipe = FluxControlPipeline.from_pretrained("black-forest-labs/FLUX.1-dev", torch_dtype=torch.bfloat16).to("cuda")
-# pipe.load_lora_weights("black-forest-labs/FLUX.1-Canny-dev-lora", adapter_name="canny")
-# pipe.set_adapters("canny", 0.85)
 
 
 generated_images = []
 
-test_list = generate_a_sample(dataset, "./eval_canny", "canny")
+test_list = generate_a_sample(dataset, f"./eval_{condition_type}", condition_type)
 
 trainable_model = OminiModel(
         flux_pipe_id=config["flux_path"],
@@ -198,7 +198,8 @@ trainable_model = OminiModel(
         gradient_checkpointing=config["train"].get("gradient_checkpointing", False),
     )
 
-trainable_model.load_lora("./runs/canny/2", "./ckpt/1000/canny.safetensors",["canny"])
+
+trainable_model.load_lora(path1, path2,[condition_type])
 for i, (condition_img, position_delta, prompt, *others) in enumerate(test_list):
     condition = Condition(
         condition_type=condition_type,
@@ -226,3 +227,5 @@ for i, (condition_img, position_delta, prompt, *others) in enumerate(test_list):
         os.path.join(save_path, f"{condition_type}_{i}.jpg")
     )
 
+from eval_metrics import compute_metrics
+metrics = compute_metrics(val_length, f"./eval_{condition_type}", condition_type)

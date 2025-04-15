@@ -107,6 +107,7 @@ def main():
             drop_text_prob=training_config["dataset"]["drop_text_prob"],
             drop_image_prob=training_config["dataset"]["drop_image_prob"],
             position_scale=training_config["dataset"].get("position_scale", 1.0),
+            noise_ratio = training_config["dataset"]["noise_ratio"],
         )
     elif training_config["dataset"]["type"] == "cartoon":
         dataset = load_dataset("saquiboye/oye-cartoon", split="train")

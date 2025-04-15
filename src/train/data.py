@@ -108,6 +108,7 @@ class ImageConditionDataset(Dataset):
         drop_image_prob: float = 0.1,
         return_pil_image: bool = False,
         position_scale=1.0,
+        noise_ratio = 0.04
     ):
         self.base_dataset = base_dataset
         self.condition_size = condition_size
@@ -117,6 +118,7 @@ class ImageConditionDataset(Dataset):
         self.drop_image_prob = drop_image_prob
         self.return_pil_image = return_pil_image
         self.position_scale = position_scale
+        self.noise_ratio = noise_ratio
 
         self.to_tensor = T.ToTensor()
 
@@ -135,7 +137,7 @@ class ImageConditionDataset(Dataset):
             )
         return self._depth_pipe
 
-    def add_gaussian_noise(self, x, mean=0.0, std=1.0):
+    def add_gaussian_noise(self, x, ratio, mean=0.0, std=1.0):
         noise = torch.randn_like(x) * std + mean
         noise = (noise - noise.min()) / (noise.max() - noise.min())
         return x + 0.04 * noise
@@ -221,7 +223,7 @@ class ImageConditionDataset(Dataset):
                 "RGB", (condition_size, condition_size), (0, 0, 0)
             )
         condition_tensor = self.to_tensor(condition_img)
-        condition_tensor = self.add_gaussian_noise(condition_tensor)
+        condition_tensor = self.add_gaussian_noise(condition_tensor, self.noise_ratio)
         return {
             "image": self.to_tensor(image),
             "condition": condition_tensor,
