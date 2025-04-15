@@ -1,0 +1,12 @@
+*.out
+*.err
+runs/*
+wandb/*
+*.jpg
+*.log
+*.safetensors
+*.arrow
+*.pyc
+assets/*
+cache/*
+examples/*
