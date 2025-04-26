@@ -5,6 +5,7 @@ model:
   union_cond_attn: true
   add_cond_attn: false
   latent_lora: false
+  # Set independent_condition to true to enable feature reusing.
   independent_condition: true
 
 train:
@@ -13,19 +14,25 @@ train:
   dataloader_workers: 5
   save_interval: 500
   sample_interval: 200
-  max_steps: 10000
+  max_steps: 6250
   gradient_checkpointing: true
   save_path: "runs"
 
-  condition_type: "subject"
+  # Specify the type of condition to use. 
+  # Options: ["canny", "coloring", "deblurring", "depth", "depth_pred", "fill"]
+  condition_type: "canny"
   dataset:
-    type: "subject"
+    type: "img"
+    urls:
+      - "https://huggingface.co/datasets/jackyhate/text-to-image-2M/resolve/main/data_512_2M/data_000046.tar"
+      - "https://huggingface.co/datasets/jackyhate/text-to-image-2M/resolve/main/data_512_2M/data_000045.tar"
+    cache_name: "data_512_2M"
     condition_size: 256
     target_size: 512
-    image_size: 256
-    padding: 8
     drop_text_prob: 0.05
     drop_image_prob: 0.1
+    # Set position_scale to enable compact tokens representation.
+    # Don't forget to resale the condition_size if you change the position_scale.
     position_scale: 2.
     noise_ratio: 0.00
 

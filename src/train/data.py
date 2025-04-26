@@ -217,13 +217,16 @@ class ImageConditionDataset(Dataset):
         drop_text = random.random() < self.drop_text_prob
         drop_image = random.random() < self.drop_image_prob
         if drop_text:
-            description = ""
+            # description = ""
+            # Try to use label flip
+            randn_idx = random.randint(0, idx)
+            description = self.base_dataset[randn_idx]["json"]["prompt"]
         if drop_image:
             condition_img = Image.new(
                 "RGB", (condition_size, condition_size), (0, 0, 0)
             )
         condition_tensor = self.to_tensor(condition_img)
-        condition_tensor = self.add_gaussian_noise(condition_tensor, self.noise_ratio)
+        # condition_tensor = self.add_gaussian_noise(condition_tensor, self.noise_ratio)
         return {
             "image": self.to_tensor(image),
             "condition": condition_tensor,

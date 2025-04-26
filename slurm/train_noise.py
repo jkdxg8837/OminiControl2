@@ -2,7 +2,7 @@ import os
 import subprocess
 
 # 设置环境变量
-os.environ['XFL_CONFIG'] = './train/config/omini2/canny_512_ct_fr.yaml'
+os.environ['XFL_CONFIG'] = './train/config/omini2/subject_512_ct_fr.yaml'
 os.environ['WANDB_API_KEY'] = '05e08cadfa8f29b4fb78407724e732c453648de6'
 os.environ['TOKENIZERS_PARALLELISM'] = 'true'
 

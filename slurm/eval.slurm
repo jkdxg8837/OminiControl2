@@ -9,7 +9,6 @@
 
 #SBATCH --time=2-00:00:00      # Job time limit set to 2 days (48 hours)
 #
-#SBATCH --mail-type=END,TIME_LIMIT_80 # Events to send email on, remove if you don't want this
 #SBATCH --output=./joboutput/eval_%j.out # Standard out from your job
 #SBATCH --error=./joboutput/eval_%j.err  # Standard error from your job
 

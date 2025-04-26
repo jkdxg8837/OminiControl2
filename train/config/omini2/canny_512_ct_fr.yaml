@@ -29,12 +29,12 @@ train:
     cache_name: "data_512_2M"
     condition_size: 256
     target_size: 512
-    drop_text_prob: 0.1
+    drop_text_prob: 0.03
     drop_image_prob: 0.1
     # Set position_scale to enable compact tokens representation.
     # Don't forget to resale the condition_size if you change the position_scale.
     position_scale: 2.
-    noise_ratio: 0.08
+    noise_ratio: 0.00
 
   wandb:
     project: "OminiControl2"

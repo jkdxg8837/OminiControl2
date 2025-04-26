@@ -10,3 +10,4 @@ wandb/*
 assets/*
 cache/*
 examples/*
+slurm/*
