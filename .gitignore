@@ -7,7 +7,7 @@ wandb/*
 *.safetensors
 *.arrow
 *.pyc
-assets/*
+# assets/*
 cache/*
 examples/*
-slurm/*
+# slurm/*
