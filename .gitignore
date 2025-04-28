@@ -2,7 +2,7 @@
 *.err
 runs/*
 wandb/*
-*.jpg
+# *.jpg
 *.log
 *.safetensors
 *.arrow
@@ -10,4 +10,5 @@ wandb/*
 # assets/*
 cache/*
 examples/*
+eval_output/*
 # slurm/*
