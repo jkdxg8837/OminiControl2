@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#SBATCH --job-name=omini2-noise2 # Job name for tracking
+#SBATCH --job-name=omini2 # Job name for tracking
 #SBATCH --partition=mlsys-ada  # Partition you wish to use (see above for list)
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=32      # Number of CPU threads used by your job
@@ -20,4 +20,4 @@ source ~/.bashrc
 conda activate /dcs/large/u5649209/envs/omini
 
 ## Execute your program(s) ##
-python ./slurm/train_noise1.py
+python ./slurm/train_sam.py

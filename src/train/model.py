@@ -11,7 +11,7 @@ sys.path.append("/home/u5649209/workspace/OminiControl2")
 from src.flux.transformer import tranformer_forward
 from src.flux.condition import Condition
 from src.flux.pipeline_tools import encode_images, prepare_text_input
-
+from src.train.sam import SAM
 
 class OminiModel(L.LightningModule):
     def __init__(
@@ -48,6 +48,8 @@ class OminiModel(L.LightningModule):
         self.lora_layers = self.init_lora(lora_path, lora_config, adapter_names)
         self.lora_config = lora_config
         self.to(device).to(dtype)
+        if "SAM" in self.optimizer_config["type"]:
+            self.automatic_optimization = False
 
     def init_lora(
         self, lora_path: str, lora_config: dict, adapter_names: List[str] = ["default"]
@@ -105,6 +107,12 @@ class OminiModel(L.LightningModule):
             )
         elif opt_config["type"] == "SGD":
             optimizer = torch.optim.SGD(self.trainable_params, **opt_config["params"])
+        elif "SAM" in opt_config["type"]:
+            optimizer = prodigyopt.Prodigy(
+                self.trainable_params,
+                **opt_config["params"],
+            )
+            optimizer = SAM(optimizer = optimizer, params = self.trainable_params, rho=opt_config["rho"])
         else:
             raise NotImplementedError
 
@@ -117,6 +125,40 @@ class OminiModel(L.LightningModule):
             if not hasattr(self, "log_loss")
             else self.log_loss * 0.95 + step_loss.item() * 0.05
         )
+        # loss = loss.mean()
+        # loss.backward()
+        # optimizer.first_step()
+        
+        # logits = model(images)
+        # loss = lossFunc(logits, targets)
+        # loss = loss.mean()
+        # loss.backward()
+        # optimizer.second_step()
+        opt = self.optimizers()
+        if "SAM" in self.optimizer_config["type"]:
+            def closure():
+                step_loss = self.step(batch)
+                self.manual_backward(step_loss)
+                return step_loss
+            step_loss = self.step(batch)
+            self.manual_backward(step_loss)
+            opt.step(closure)
+            opt.zero_grad()
+
+            print(self.trainer.global_step)
+            return step_loss
+
+            # step_loss = step_loss.mean()
+            # self.manual_backward(step_loss)
+            # opt.first_step()
+
+            # step_loss_new = self.step(batch)
+            
+            # opt.second_step()
+            # self.clip_gradients(opt, gradient_clip_val=0.5, gradient_clip_algorithm="norm")
+            # opt.step()
+            # opt.zero_grad()
+
         return step_loss
 
     def step(self, batch):

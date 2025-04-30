@@ -160,7 +160,7 @@ def main():
         logger=False,
         max_steps=training_config.get("max_steps", -1),
         max_epochs=training_config.get("max_epochs", -1),
-        gradient_clip_val=training_config.get("gradient_clip_val", 0.5),
+        # gradient_clip_val=training_config.get("gradient_clip_val", 0.5),
     )
 
     setattr(trainer, "training_config", training_config)
